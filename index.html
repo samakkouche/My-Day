@@ -60,6 +60,7 @@ button.p,.ck.on,.dy i,.fab{color:#000}.fab{box-shadow:0 6px 18px rgba(255,255,25
 input{display:block;min-width:0;max-width:100%;min-height:46px;-webkit-appearance:none;appearance:none;text-align:left}
 input::-webkit-date-and-time-value{text-align:left;min-height:1.2em}
 html,body{overflow-x:hidden}
+.sg button.td{background:rgba(255,255,255,.14)}
 </style>
 </head>
 <body>
@@ -93,21 +94,21 @@ function rT(){
  $("#s0").innerHTML="<h2>To-do</h2>"+bn+(L.length?L.map(function(t){var r=soon(t)?" red":"";return '<div class="it'+(t.done?" done":"")+'"><button class="ck'+(t.done?" on":"")+'" data-a="tk" data-i="'+t.id+'">'+(t.done?"✓":"")+'</button><div class="tx"><span class="t'+r+'">'+esc(t.t)+"</span>"+(t.due?'<span class="d'+(t.done?"":r)+'">'+dueLbl(t.due)+"</span>":"")+'</div><button class="x" data-a="td" data-i="'+t.id+'">✕</button></div>'}).join(""):'<p class="m">Nothing here yet. Tap + to add something.</p>');
 }
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
-function nav(k){return '<div class="nav"><button data-a="wk" data-k="'+k+'" data-v="-1">‹</button><b>'+wl(W[k])+'</b><button data-a="wk" data-k="'+k+'" data-v="1">›</button></div>'}
+function nav(k){return '<div class="nav"><button data-a="wk" data-k="'+k+'" data-v="-1">‹</button><b>'+wl(W[k])+'</b><button data-a="wk" data-k="'+k+'" data-v="1">›</button></div>'+(W[k]?'<div style="text-align:center;margin:-4px 0 12px"><button data-a="tw" data-k="'+k+'">This week</button></div>':'')}
 function rH(){
  var w=week(W.h),t=ymd(today());
  $("#s1").innerHTML="<h2>Habits</h2>"+nav("h")+(D.habits.length?D.habits.map(function(h){var n=w.filter(function(d){return h.days[ymd(d)]}).length;
-  return '<div class="hc"><div class="hh"><span>'+esc(h.n)+' <span class="m">'+n+'/7</span></span><button class="x" data-a="hd" data-i="'+h.id+'">✕</button></div><div class="wk">'+w.map(function(d,i){var k=ymd(d);return '<button class="dy'+(h.days[k]?" on":"")+(k===t?" td":"")+'" style="border:none;background:none" data-a="hk" data-i="'+h.id+'" data-d="'+k+'">'+DN[i]+"<i>"+(h.days[k]?"✓":"")+"</i>"+d.getDate()+"</button>"}).join("")+"</div></div>"}).join(""):'<p class="m">No habits yet. Tap + to add gym, reading, anything.</p>');
+  return '<div class="hc"><div class="hh"><span>'+esc(h.n)+' <span class="m">'+n+'/7</span></span><button class="x" data-a="hd" data-i="'+h.id+'">✕</button></div><div class="wk">'+w.map(function(d,i){var k=ymd(d);return '<button class="dy'+(h.days[k]?" on":"")+(k===t?" td":"")+'" style="border:none;border-radius:12px;background:'+(k===t?"rgba(255,255,255,.14)":"none")+'" data-a="hk" data-i="'+h.id+'" data-d="'+k+'">'+DN[i]+"<i>"+(h.days[k]?"✓":"")+"</i>"+d.getDate()+"</button>"}).join("")+"</div></div>"}).join(""):'<p class="m">No habits yet. Tap + to add gym, reading, anything.</p>');
 }
 function rS(){
  var w=week(W.s),P=[],tot=0,c=0,mx=12,RH=46,T=22;
  w.forEach(function(d,i){var e=D.sleep[ymd(d)];if(e){var m=slp(e);P.push({i:i,m:m});tot+=m;c++;mx=Math.max(mx,Math.ceil(m/60))}});
  var X=function(m){return 50+(m/60/mx)*285},Y=function(i){return T+i*RH+RH/2};
- var g="";[0,1,2,3].forEach(function(k){var hh=Math.round(mx*k/3),x=50+(hh/mx)*285;g+='<line x1="'+x+'" x2="'+x+'" y1="'+T+'" y2="'+(T+7*RH)+'" stroke="var(--ln)"/><text x="'+x+'" y="14" font-size="10" fill="var(--mut)" text-anchor="middle">'+hh+"h</text>"});
+ var g="";w.forEach(function(d,i){if(ymd(d)===ymd(today()))g+='<rect x="0" y="'+(T+i*RH)+'" width="350" height="'+RH+'" fill="rgba(255,255,255,.1)"/>'});[0,1,2,3].forEach(function(k){var hh=Math.round(mx*k/3),x=50+(hh/mx)*285;g+='<line x1="'+x+'" x2="'+x+'" y1="'+T+'" y2="'+(T+7*RH)+'" stroke="var(--ln)"/><text x="'+x+'" y="14" font-size="10" fill="var(--mut)" text-anchor="middle">'+hh+"h</text>"});
  w.forEach(function(d,i){g+='<text x="4" y="'+(Y(i)-2)+'" font-size="12" font-weight="700" fill="var(--fg)">'+DN[i]+'</text><text x="4" y="'+(Y(i)+11)+'" font-size="10" fill="var(--mut)">'+d.getDate()+"</text>"});
  var ln=P.length>1?'<polyline fill="none" stroke="var(--ac)" stroke-width="2.5" points="'+P.map(function(p){return X(p.m)+","+Y(p.i)}).join(" ")+'"/>':"";
  var dots=P.map(function(p){var x=X(p.m),r=x>250;return '<circle cx="'+x+'" cy="'+Y(p.i)+'" r="6" fill="var(--ac)"/><text x="'+(r?x-11:x+11)+'" y="'+(Y(p.i)+4)+'" font-size="11" fill="var(--fg)" text-anchor="'+(r?"end":"start")+'">'+hm(p.m)+"</text>"}).join("");
- var days=w.map(function(d,i){var k=ymd(d),e=D.sleep[k];return '<button data-a="sl" data-d="'+k+'">'+DN[i]+'<span class="m">'+d.getDate()+"</span>"+(e?"<b>"+hm(slp(e))+"</b>":'<span class="m">+</span>')+"</button>"}).join("");
+ var days=w.map(function(d,i){var k=ymd(d),e=D.sleep[k];return '<button'+(k===ymd(today())?' class="td"':'')+' data-a="sl" data-d="'+k+'">'+DN[i]+'<span class="m">'+d.getDate()+"</span>"+(e?"<b>"+hm(slp(e))+"</b>":'<span class="m">+</span>')+"</button>"}).join("");
  $("#s2").innerHTML="<h2>Sleep</h2>"+nav("s")+'<div class="sg">'+days+'</div><svg style="margin-top:14px" viewBox="0 0 350 '+(T+7*RH+8)+'">'+g+ln+dots+"</svg>"+(c?'<p class="m" style="margin-top:14px">Average this week: <b>'+hm(Math.round(tot/c))+"</b> over "+c+" night"+(c>1?"s":"")+"</p>":'<p class="m" style="margin-top:14px">Tap a day above to add when you went to sleep and woke up.</p>');
 }
 function all(){rT();rH();rS();badge()}
@@ -133,6 +134,7 @@ document.addEventListener("click",function(e){
  else if(a==="hd"){D.habits=D.habits.filter(function(h){return h.id!==i})}
  else if(a==="hk"){D.habits.forEach(function(h){if(h.id===i){if(h.days[d])delete h.days[d];else h.days[d]=1}})}
  else if(a==="wk"){W[el.dataset.k]+=+el.dataset.v}
+ else if(a==="tw"){W[el.dataset.k]=0}
  else if(a==="sl"){sheet("s",d);return}
  else if(a==="addT"){var v=$("#i1").value.trim();if(!v)return;D.todos.push({id:id(),t:v,due:$("#i2").value||"",done:false});close()}
  else if(a==="addH"){var n=$("#i1").value.trim();if(!n)return;D.habits.push({id:id(),n:n,days:{}});close()}
