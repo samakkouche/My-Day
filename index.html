@@ -101,7 +101,7 @@ select{font:inherit;font-size:17px;color:var(--fg);background:var(--bg);border:1
 <script>
 var K="myday-v1",D={todos:[],habits:[],sleep:{},nt:{},books:[]};
 try{var raw=localStorage.getItem(K);if(raw)D=Object.assign(D,JSON.parse(raw))}catch(e){}
-D.habits.forEach(function(h){if(h.kind===undefined)h.kind=/gym/i.test(h.n)?"gym":/read/i.test(h.n)?"reading":""});
+D.habits.forEach(function(h){h.kind=kd(h.n,"")});
 function save(){try{localStorage.setItem(K,JSON.stringify(D))}catch(e){}}
 var $=function(q){return document.querySelector(q)},W={h:0,s:0},DN=["M","T","W","T","F","S","S"],MU=["Chest","Back","Legs","Shoulders","Biceps","Triceps"],SEL={g:{},b:-1};
 function pad(n){return String(n).padStart(2,"0")}
@@ -163,7 +163,7 @@ function sheet(k,d,hid,keep){
  if(k==="t"||k==="e"){t=k==="e"?D.todos.filter(function(x){return x.id===hid})[0]:{t:"",due:""};if(!t)return;
   open('<h3>'+(k==="e"?"Edit to-do":"New to-do")+'</h3><label class="f">What needs doing<input id="i1" maxlength="120" value="'+esc(t.t)+'"></label><label class="f">Needed by (optional)<input id="i2" type="date" value="'+(t.due||"")+'"></label><div class="row2"><button data-a="x">Cancel</button><button class="p" data-a="'+(k==="e"?"svE":"addT")+'" data-i="'+(hid||"")+'">'+(k==="e"?"Save":"Add")+'</button></div>')}
  else if(k==="h"||k==="he"){h=k==="he"?hab(hid):{n:"",kind:""};if(!h)return;SEL.t=h.kind||"";
-  open('<h3>'+(k==="he"?"Edit habit":"New habit")+'</h3><label class="f">Habit<input id="i1" maxlength="60" value="'+esc(h.n)+'" placeholder="Gym, reading…"></label><div class="f">Type<div class="chips">'+[["","Normal"],["gym","Gym"],["reading","Reading"]].map(function(o){return '<button class="chip tp'+((h.kind||"")===o[0]?" sl":"")+'" data-a="tp" data-v="'+o[0]+'">'+o[1]+'</button>'}).join("")+'</div></div><div class="row2"><button data-a="x">Cancel</button><button class="p" data-a="'+(k==="he"?"svH":"addH")+'" data-i="'+(hid||"")+'">'+(k==="he"?"Save":"Add")+'</button></div>')}
+  open('<h3>'+(k==="he"?"Edit habit":"New habit")+'</h3><label class="f">Habit<input id="i1" maxlength="60" value="'+esc(h.n)+'" placeholder="Gym, reading…"></label><div class="row2"><button data-a="x">Cancel</button><button class="p" data-a="'+(k==="he"?"svH":"addH")+'" data-i="'+(hid||"")+'">'+(k==="he"?"Save":"Add")+'</button></div>')}
  else if(k==="g"){h=hab(hid);SEL.g={};(h.g&&h.g[d]||[]).forEach(function(m){SEL.g[m]=1});
   open('<h3>Gym · '+sd(d)+'</h3><div class="m">What did you work out?</div><div class="chips">'+MU.map(function(m){return '<button class="chip'+(SEL.g[m]?" sl":"")+'" data-a="gm" data-m="'+m+'">'+m+'</button>'}).join("")+'</div><div class="row2"><button data-a="x">Cancel</button>'+(h.days[d]?'<button data-a="hu" data-i="'+hid+'" data-d="'+d+'">Remove</button>':"")+'<button class="p" data-a="svG" data-i="'+hid+'" data-d="'+d+'">Save</button></div>')}
  else if(k==="r"){h=hab(hid);if(!keep)SEL.b=h.b&&h.b[d]?D.books.indexOf(h.b[d]):-1;
@@ -176,6 +176,7 @@ var pg=$("#pg"),cur=0,an=0;
 function go(i){var from=pg.scrollLeft,to=i*pg.clientWidth,t0=0,tk=++an;function st(ts){if(tk!==an)return;if(!t0)t0=ts;var p=Math.min(1,(ts-t0)/300),e=1-Math.pow(1-p,3);pg.scrollLeft=from+(to-from)*e;if(p<1)requestAnimationFrame(st)}requestAnimationFrame(st)}
 pg.addEventListener("scroll",function(){var i=Math.round(pg.scrollLeft/pg.clientWidth);if(i===cur)return;cur=i;[].forEach.call(document.querySelectorAll("#tabs button"),function(b,j){b.classList.toggle("on",j===i)});[].forEach.call(document.querySelectorAll("#sw b"),function(b,j){b.classList.toggle("on",j===i)});$("#fab").style.display=i<2?"":"none";$("#cbtn").style.display=i===0?"":"none"});
 document.addEventListener("click",function(e){
+ if(LPF){LPF=false;return}
  var el=e.target.closest("[data-a],[data-p],#fab,#cbtn");if(!el)return;
  if(el.id==="cbtn"){showC();return}
  if(el.id==="fab"){sheet(cur===0?"t":"h");return}
@@ -202,8 +203,8 @@ document.addEventListener("click",function(e){
  else if(a==="fj"){var o=$("#fjs"),on=o.style.display==="none";o.style.display=on?"block":"none";el.classList.toggle("p",on);return}
  else if(a==="addT"){var v=$("#i1").value.trim();if(!v)return;D.todos.push({id:id(),t:v,due:$("#i2").value||"",done:false});close()}
  else if(a==="svE"){var tt=D.todos.filter(function(x){return x.id===i})[0],v2=$("#i1").value.trim();if(!tt||!v2)return;tt.t=v2;tt.due=$("#i2").value||"";close()}
- else if(a==="addH"){var n=$("#i1").value.trim();if(!n)return;D.habits.push({id:id(),n:n,kind:SEL.t||"",days:{},g:{},b:{}});close()}
- else if(a==="svH"){var n2=$("#i1").value.trim();if(!n2||!h)return;h.n=n2;h.kind=SEL.t||"";close()}
+ else if(a==="addH"){var n=$("#i1").value.trim();if(!n)return;D.habits.push({id:id(),n:n,kind:kd(n,""),days:{},g:{},b:{}});close()}
+ else if(a==="svH"){var n2=$("#i1").value.trim();if(!n2||!h)return;h.n=n2;h.kind=kd(n2,"");close()}
  else if(a==="svS"){var b=$("#i1").value,wk=$("#i2").value;if(!b||!wk)return;var ent={bed:b,wake:wk};if($("#fjs").style.display!=="none"){ent.fj=1;ent.fm=parseInt($("#i3").value,10)||0}D.sleep[d]=ent;close()}
  else if(a==="clr"){delete D.sleep[d];close()}
  else if(a==="notif"){try{Notification.requestPermission().then(function(){all();ping()})}catch(x){}return}
@@ -235,12 +236,17 @@ function dragEnd(){var el=G.el;if(!el)return;G.el=null;G.sp=0;
  else D.habits=ids.map(hab);
  save();el.style.transition="transform .16s ease";el.style.transform="translateY(0) scale(1)";
  setTimeout(function(){el.classList.remove("dragging");el.style.transition="";el.style.transform="";all()},170)}
+var LPF=false;
+function info(h,d){var tx=h.kind==="gym"?((h.g&&h.g[d]||[]).join(", ")||"No workout saved for this day"):(h.b&&h.b[d]||"No book saved for this day");
+ ask('<h3>'+esc(h.n)+' · '+sd(d)+'</h3><p class="m" style="margin:0;font-size:18px;color:var(--fg)">'+esc(tx)+'</p><div class="row2"><button class="p" data-a="x">Close</button></div>')}
 var G={};
 document.addEventListener("touchstart",function(e){
- var t=e.touches[0];G={x:t.clientX,y:t.clientY,m:null,z:null,dx:0,lp:0,c0:cur,row:null};
+ LPF=false;var t=e.touches[0];G={x:t.clientX,y:t.clientY,m:null,z:null,dx:0,lp:0,c0:cur,row:null};
  if($("#sh").classList.contains("o")||$("#dlg").classList.contains("o"))return;
  if(e.target.closest(".dh")){dragStart(e,t);return}
  var hn=e.target.closest(".hn");if(hn)G.lp=setTimeout(function(){G.lp=0;G.m="x";sheet("he",null,hn.dataset.i)},500);
+ var dyb=e.target.closest(".dy"),hh=dyb&&hab(dyb.dataset.i);
+ if(hh&&(hh.kind==="gym"||hh.kind==="reading")&&hh.days[dyb.dataset.d])G.lp=setTimeout(function(){G.lp=0;G.m="x";LPF=true;info(hh,dyb.dataset.d)},450);
  G.row=e.target.closest(".sw");
  if($("#cv").classList.contains("o"))G.z=G.row?"row":null;
  else if(G.y>innerHeight*.75){G.z="page";G.left=pg.scrollLeft;an++}
